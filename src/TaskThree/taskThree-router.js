@@ -46,8 +46,6 @@ taskThreeRouter
 		const { parent_id, project_id, task_level, title, completion_status = false } = req.body;
 		const newTask = { parent_id, project_id, task_level, title, completion_status };
 
-		console.log("newTask", newTask);
-
 		for (const [key, value] of Object.entries(newTask))
 			if (value === null)
 				return res.status(400).json({

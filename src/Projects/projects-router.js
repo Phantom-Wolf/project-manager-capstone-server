@@ -29,11 +29,8 @@ projectsRouter
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
-		console.log(req.body);
 		const { project_name } = req.body;
 		const newProject = { project_name };
-
-		console.log(newProject);
 
 		for (const [key, value] of Object.entries(newProject))
 			if (value === null)
@@ -45,7 +42,6 @@ projectsRouter
 
 		newProject.user_id = req.user.id;
 
-		console.log(newProject);
 		ProjectsService.insertProject(req.app.get("db"), newProject)
 			.then((project) => {
 				res
@@ -82,7 +78,6 @@ projectsRouter
 		res.json(serializeProject(res.project));
 	})
 	.delete((req, res, next) => {
-		console.log(req.params.project_id);
 		ProjectsService.deleteProject(req.app.get("db"), req.params.project_id)
 			.then((numbRowsAffected) => {
 				res.status(204).end();

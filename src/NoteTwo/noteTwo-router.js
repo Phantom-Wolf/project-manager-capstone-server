@@ -25,8 +25,6 @@ const serializeNote = (note) => ({
 noteTwoRouter.route("/getAll").post(requireAuth, jsonParser, (req, res, next) => {
 	const { parent_id } = req.body;
 
-	console.log(parent_id);
-
 	for (const [key, value] of Object.entries(parent_id))
 		if (value == null)
 			return res.status(400).json({
@@ -41,8 +39,6 @@ noteTwoRouter.route("/getAll").post(requireAuth, jsonParser, (req, res, next) =>
 noteTwoRouter.route("/").post(requireAuth, jsonParser, (req, res, next) => {
 	const { parent_id, note, date_created } = req.body;
 	const newNote = { parent_id, note, date_created };
-
-	console.log(newNote);
 
 	for (const [key, value] of Object.entries(newNote))
 		if (value === null)

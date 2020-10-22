@@ -97,12 +97,10 @@ describe("Auth Endpoints", function () {
 					user_email: testUser.user_email,
 					user_password: testUser.user_password,
 				};
-				console.log(testUser);
 				const expectedToken = `bearer ${AuthService.createJwt(testUser.user_email, {
 					id: testUser.id,
                 })}`;
                 
-                console.log(expectedToken)
 				return supertest(app).post("/api/auth/login").send(userValidCreds).expect(200, {
 					authToken: expectedToken,
 				});

@@ -112,8 +112,6 @@ parentTaskRouter
 		const { title, project_id, task_level, completion_status } = req.body;
 		const taskToUpdate = { title, project_id, task_level, completion_status };
 
-		console.log(taskToUpdate);
-
 		const numberOfValues = Object.values(taskToUpdate).filter(Boolean).length;
 		if (numberOfValues === 0) {
 			return res.status(400).json({
@@ -167,8 +165,6 @@ parentTaskRouter.route("/notes").post(requireAuth, jsonParser, (req, res, next) 
 	const { parent_id, note, date_created } = req.body;
 	const newParentNote = { parent_id, note, date_created };
 
-	console.log(newParentNote);
-
 	for (const [key, value] of Object.entries(newParentNote))
 		if (value === null)
 			return res.status(400).json({
@@ -191,8 +187,6 @@ parentTaskRouter.route("/notes").post(requireAuth, jsonParser, (req, res, next) 
 
 parentTaskRouter.route("/getNotes").post(requireAuth, jsonParser, (req, res, next) => {
 	const { parent_id } = req.body;
-
-	console.log("parent", parent_id);
 
 	for (const [key, value] of Object.entries(parent_id))
 		if (value == null)
