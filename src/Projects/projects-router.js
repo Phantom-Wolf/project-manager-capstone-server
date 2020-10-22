@@ -15,7 +15,7 @@ const jsonParser = express.json();
 const serializeProject = (project) => ({
 	id: project.id,
 	user_id: project.user_id,
-	name: xss(project.name),
+	project_name: xss(project.project_name),
 });
 
 // routes
@@ -29,8 +29,11 @@ projectsRouter
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
-		const { name } = req.body;
-		const newProject = { name };
+		console.log(req.body);
+		const { project_name } = req.body;
+		const newProject = { project_name };
+
+		console.log(newProject);
 
 		for (const [key, value] of Object.entries(newProject))
 			if (value === null)
@@ -42,6 +45,7 @@ projectsRouter
 
 		newProject.user_id = req.user.id;
 
+		console.log(newProject);
 		ProjectsService.insertProject(req.app.get("db"), newProject)
 			.then((project) => {
 				res
@@ -61,7 +65,7 @@ projectsRouter
 				error: { message: `Invalid id` },
 			});
 		}
-		ProjectService.getProjectById(req.app.get("db"), req.params.project_id)
+		ProjectsService.getProjectById(req.app.get("db"), req.params.project_id)
 			.then((project) => {
 				if (!project) {
 					return res.status(404).json({
@@ -69,6 +73,7 @@ projectsRouter
 					});
 				}
 				res.project = project;
+
 				next();
 			})
 			.catch(next);
@@ -77,6 +82,7 @@ projectsRouter
 		res.json(serializeProject(res.project));
 	})
 	.delete((req, res, next) => {
+		console.log(req.params.project_id);
 		ProjectsService.deleteProject(req.app.get("db"), req.params.project_id)
 			.then((numbRowsAffected) => {
 				res.status(204).end();
@@ -84,4 +90,4 @@ projectsRouter
 			.catch(next);
 	});
 
-	module.exports = projectsRouter
+module.exports = projectsRouter;

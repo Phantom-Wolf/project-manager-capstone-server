@@ -3,46 +3,27 @@
 const ParentTaskService = {
 	// tasks
 
-	getAllParentTasks(knex, id) {
-		return knex.from("parentTask").select("*").where("project_id", id);
+	getAllTasks(knex, id) {
+		return knex.from("parenttask").select("*").where("project_id", id);
 	},
 	getParentTaskById(knex, id) {
-		return knex.from("parentTask").select("*").where("id", id).first();
+		return knex.from("parenttask").select("*").where("id", id).first();
 	},
 	insertParentTask(knex, newParentTask) {
 		return knex
 			.insert(newParentTask)
-			.into("parentTask")
+			.into("parenttask")
 			.returning("*")
 			.then((rows) => {
 				return rows[0];
 			});
 	},
 	deleteParentTask(knex, id) {
-		return knex.from("parentTask").where({ id }).delete();
+		return knex.from("parenttask").where({ id }).delete();
 	},
-
-	// notes
-
-	getAllParentNotes(knex, id) {
-		return knex.from("parentNote").select("*").where("parent_id", id);
+	updateTask(knex, id, newTaskFields) {
+		return knex.from("parenttask").where({ id }).update(newTaskFields);
 	},
-	getParentNoteById(knex, id) {
-		return knex.from("parentNote").select("*").where("id", id).first();
-	},
-	insertParentNote(knex, newParentNote) {
-		return knex
-			.insert(newParentNote)
-			.into("parentNote")
-			.returning("*")
-			.then((rows) => {
-				return rows[0];
-			});
-	},
-	deleteParentNote(knex, id) {
-		return knex.from("parentNote").where({ id }).delete();
-	},
-
 };
 
 // export

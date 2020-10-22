@@ -13,10 +13,11 @@ const taskOneRouter = express.Router();
 const jsonParser = express.json();
 
 const serializetask = (task) => ({
-    id: task.id,
-    parent_id: task.parent_id,
+	id: task.id,
+	parent_id: task.parent_id,
 	project_id: task.project_id,
-    title: xss(task.title),
+	title: xss(task.title),
+	task_level: task.task_level,
 	completion_status: task.completion_status,
 });
 
@@ -36,14 +37,16 @@ taskOneRouter
 	.route("/")
 	.all(requireAuth)
 	.get((req, res, next) => {
-        const {parent_id} = req.body
-		TaskOneService.getAllTasks(req.app.get("db"), parent_id).then((tasks) => {
+		const { project_id } = req.body;
+		TaskOneService.getAllTasks(req.app.get("db"), project_id).then((tasks) => {
 			res.json(tasks.map(serializetask));
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
-		const { parent_id, project_id, title, completion_status = false } = req.body;
-		const newTask = { parent_id, project_id, title, completion_status };
+		const { parent_id, project_id, task_level, title, completion_status = false } = req.body;
+		const newTask = { parent_id, project_id, task_level, title, completion_status };
+
+		console.log("newTask", newTask);
 
 		for (const [key, value] of Object.entries(newTask))
 			if (value === null)
@@ -63,7 +66,14 @@ taskOneRouter
 			.catch(next);
 	});
 
-    taskOneRouter
+taskOneRouter.route("/getAll").post(requireAuth, jsonParser, (req, res, next) => {
+	const { project_id } = req.body;
+	TaskOneService.getAllTasks(req.app.get("db"), project_id).then((tasks) => {
+		res.json(tasks.map(serializetask));
+	});
+});
+
+taskOneRouter
 	.route("/:task_id")
 	.all(requireAuth)
 	.all((req, res, next) => {
@@ -93,11 +103,30 @@ taskOneRouter
 				res.status(204).end();
 			})
 			.catch(next);
+	})
+	.patch(jsonParser, (req, res, next) => {
+		const { parent_id, project_id, task_level, title, completion_status } = req.body;
+		const taskToUpdate = { parent_id, project_id, task_level, title, completion_status };
+
+		const numberOfValues = Object.values(taskToUpdate).filter(Boolean).length;
+		if (numberOfValues === 0) {
+			return res.status(400).json({
+				error: {
+					message: `'Request body is missing values'`,
+				},
+			});
+		}
+
+		TaskOneService.updateTask(req.app.get("db"), req.params.task_id, taskToUpdate)
+			.then((updatedTask) => {
+				res.status(200).json();
+			})
+			.catch(next);
 	});
 
-	// ***** notes *****
+// ***** notes *****
 
-	taskOneRouter
+taskOneRouter
 	.route("/notes")
 	.get((req, res, next) => {
 		const { parent_id } = req.body;
@@ -116,7 +145,7 @@ taskOneRouter
 						message: `missing ${key} in request body`,
 					},
 				});
-		
+
 		newNote.user_id = req.user.id;
 
 		TaskOneService.insertNote(req.app.get("db"), newNote)
@@ -129,7 +158,7 @@ taskOneRouter
 			.catch(next);
 	});
 
-	taskOneRouter
+taskOneRouter
 	.route("/notes/:note_id")
 	.all(requireAuth)
 	.all((req, res, next) => {
@@ -161,4 +190,4 @@ taskOneRouter
 			.catch(next);
 	});
 
-	module.exports = taskOneRouter
+module.exports = taskOneRouter;

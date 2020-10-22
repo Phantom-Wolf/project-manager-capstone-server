@@ -13,6 +13,9 @@ const UsersService = {
 				return rows[0];
 			});
 	},
+	getUser(knex, id){
+		return knex.from("users").select("*").where({ id }).first();
+	},
 	hasUserWithUserEmail(db, user_email) {
 		return db("users")
 			.where({ user_email })

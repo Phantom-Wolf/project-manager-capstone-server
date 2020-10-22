@@ -16,6 +16,7 @@ const serializeParentTask = (parentTask) => ({
 	id: parentTask.id,
 	project_id: parentTask.project_id,
 	title: xss(parentTask.title),
+	task_level: parentTask.task_level,
 	completion_status: parentTask.completion_status,
 });
 
@@ -27,7 +28,7 @@ const serializeParentNote = (parentNote) => ({
 	date_created: parentNote.date_created,
 });
 
-//  routes 
+//  routes
 
 // ***** tasks *****
 
@@ -41,8 +42,8 @@ parentTaskRouter
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
-		const { title, project_id, completion_status = false } = req.body;
-		const newParentTask = { title, project_id, completion_status };
+		const { title, project_id, task_level, completion_status = false } = req.body;
+		const newParentTask = { title, project_id, task_level, completion_status };
 
 		for (const [key, value] of Object.entries(newParentTask))
 			if (value === null)
@@ -62,13 +63,27 @@ parentTaskRouter
 			.catch(next);
 	});
 
+parentTaskRouter.route("/getAll").post(requireAuth, jsonParser, (req, res, next) => {
+	const { project_id } = req.body;
+
+	for (const [key, value] of Object.entries(project_id))
+		if (value == null)
+			return res.status(400).json({
+				error: `Missing '${key}' in request body`,
+			});
+
+	ParentTaskService.getAllTasks(req.app.get("db"), project_id).then((parentTask) => {
+		res.json(parentTask.map(serializeParentTask));
+	});
+});
+
 parentTaskRouter
 	.route("/:parentTask_id")
 	.all(requireAuth)
 	.all((req, res, next) => {
 		if (isNaN(parseInt(req.params.parentTask_id))) {
 			return res.status(404).json({
-				error: { message: `Invalid id` },
+				error: { message: `Invalid id1` },
 			});
 		}
 		ParentTaskService.getParentTaskById(req.app.get("db"), req.params.parentTask_id)
@@ -92,16 +107,36 @@ parentTaskRouter
 				res.status(204).end();
 			})
 			.catch(next);
-	});
-	
-	// ***** notes *****
+	})
+	.patch(jsonParser, (req, res, next) => {
+		const { title, project_id, task_level, completion_status } = req.body;
+		const taskToUpdate = { title, project_id, task_level, completion_status };
 
-	parentTaskRouter
+		console.log(taskToUpdate);
+
+		const numberOfValues = Object.values(taskToUpdate).filter(Boolean).length;
+		if (numberOfValues === 0) {
+			return res.status(400).json({
+				error: {
+					message: `'Request body is missing values'`,
+				},
+			});
+		}
+
+		ParentTaskService.updateTask(req.app.get("db"), req.params.parentTask_id, taskToUpdate)
+			.then((updatedTask) => {
+				res.status(200).json(updatedTask);
+			})
+			.catch(next);
+	});
+
+parentTaskRouter
 	.route("/notes")
+	// .all(requireAuth)
 	.get((req, res, next) => {
-		const { parent_id } = req.body;
-		ParentTaskService.getAllparentNotes(req.app.get("db"), parent_id).then((parentNote) => {
-			res.json(parentNote.map(serializeParentNote));
+		const { project_id } = req.body;
+		ParentTaskService.getAllparentTasks(req.app.get("db"), project_id).then((parentTask) => {
+			res.json(parentTask.map(serializeParentTask));
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
@@ -115,26 +150,73 @@ parentTaskRouter
 						message: `missing ${key} in request body`,
 					},
 				});
-		
+
 		newParentNote.user_id = req.user.id;
 
-		ParentTaskService.insertParentNote(req.app.get("db"), newParentNote)
+		ParentTaskService.insertParentTask(req.app.get("db"), newParentNote)
 			.then((parentNote) => {
 				res
 					.status(201)
 					.location(path.posix.join(req.originalUrl, `/${parentNote.id}`))
-					.json(serializeParentNote(parentNote));
+					.json(serializeParentTask(parentNote));
 			})
 			.catch(next);
 	});
 
-	parentTaskRouter
+parentTaskRouter.route("/notes").post(requireAuth, jsonParser, (req, res, next) => {
+	const { parent_id, note, date_created } = req.body;
+	const newParentNote = { parent_id, note, date_created };
+
+	console.log(newParentNote);
+
+	for (const [key, value] of Object.entries(newParentNote))
+		if (value === null)
+			return res.status(400).json({
+				error: {
+					message: `missing ${key} in request body`,
+				},
+			});
+
+	newParentNote.user_id = req.user.id;
+
+	ParentTaskService.insertParentNote(req.app.get("db"), newParentNote)
+		.then((parentNote) => {
+			res
+				.status(201)
+				.location(path.posix.join(req.originalUrl, `/${parentNote.id}`))
+				.json(serializeParentNote(parentNote));
+		})
+		.catch(next);
+});
+
+parentTaskRouter.route("/getNotes").post(requireAuth, jsonParser, (req, res, next) => {
+	const { parent_id } = req.body;
+
+	console.log("parent", parent_id);
+
+	for (const [key, value] of Object.entries(parent_id))
+		if (value == null)
+			return res.status(400).json({
+				error: `Missing '${key}' in request body`,
+			});
+
+	ParentTaskService.getAllParentNotes(req.app.get("db"), parent_id).then((parentNotes) => {
+		// if (!parentNotes) {
+		// 	return res.status(404).json({
+		// 		error: { message: `No notes exist yet` },
+		// 	});
+		// }
+		res.json(parentNotes.map(serializeParentNote));
+	});
+});
+
+parentTaskRouter
 	.route("/notes/:parentNote_id")
 	.all(requireAuth)
 	.all((req, res, next) => {
 		if (isNaN(parseInt(req.params.parentNote_id))) {
 			return res.status(404).json({
-				error: { message: `Invalid id` },
+				error: { message: `Invalid id2` },
 			});
 		}
 		ParentTaskService.getParentNoteById(req.app.get("db"), req.params.parentNote_id)
@@ -160,4 +242,4 @@ parentTaskRouter
 			.catch(next);
 	});
 
-	module.exports = parentTaskRouter
+module.exports = parentTaskRouter;

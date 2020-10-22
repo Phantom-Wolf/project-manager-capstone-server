@@ -17,6 +17,7 @@ const serializetask = (task) => ({
 	parent_id: task.parent_id,
 	project_id: task.project_id,
 	title: xss(task.title),
+	task_level: task.task_level,
 	completion_status: task.completion_status,
 });
 
@@ -36,14 +37,16 @@ taskThreeRouter
 	.route("/")
 	.all(requireAuth)
 	.get((req, res, next) => {
-		const { parent_id } = req.body;
-		TaskThreeService.getAllTasks(req.app.get("db"), parent_id).then((tasks) => {
+		const { project_id } = req.body;
+		TaskThreeService.getAllTasks(req.app.get("db"), project_id).then((tasks) => {
 			res.json(tasks.map(serializetask));
 		});
 	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
-		const { parent_id, project_id, title, completion_status = false } = req.body;
-		const newTask = { parent_id, project_id, title, completion_status };
+		const { parent_id, project_id, task_level, title, completion_status = false } = req.body;
+		const newTask = { parent_id, project_id, task_level, title, completion_status };
+
+		console.log("newTask", newTask);
 
 		for (const [key, value] of Object.entries(newTask))
 			if (value === null)
@@ -62,6 +65,14 @@ taskThreeRouter
 			})
 			.catch(next);
 	});
+
+taskThreeRouter.route("/getAll").post(requireAuth, jsonParser, (req, res, next) => {
+	const { project_id } = req.body;
+
+	TaskThreeService.getAllTasks(req.app.get("db"), project_id).then((tasks) => {
+		res.json(tasks.map(serializetask));
+	});
+});
 
 taskThreeRouter
 	.route("/:task_id")
@@ -93,6 +104,25 @@ taskThreeRouter
 				res.status(204).end();
 			})
 			.catch(next);
+	})
+	.patch(jsonParser, (req, res, next) => {
+		const { parent_id, project_id, task_level, title, completion_status } = req.body;
+		const taskToUpdate = { parent_id, project_id, task_level, title, completion_status };
+
+		const numberOfValues = Object.values(taskToUpdate).filter(Boolean).length;
+		if (numberOfValues === 0) {
+			return res.status(400).json({
+				error: {
+					message: `'Request body is missing values'`,
+				},
+			});
+		}
+
+		TaskThreeService.updateTask(req.app.get("db"), req.params.task_id, taskToUpdate)
+			.then((updatedTask) => {
+				res.status(200).json();
+			})
+			.catch(next);
 	});
 
 // ***** notes *****
@@ -116,7 +146,7 @@ taskThreeRouter
 						message: `missing ${key} in request body`,
 					},
 				});
-		
+
 		newNote.user_id = req.user.id;
 
 		TaskThreeService.insertNote(req.app.get("db"), newNote)
@@ -129,7 +159,7 @@ taskThreeRouter
 			.catch(next);
 	});
 
-	taskThreeRouter
+taskThreeRouter
 	.route("/notes/:note_id")
 	.all(requireAuth)
 	.all((req, res, next) => {
@@ -161,5 +191,4 @@ taskThreeRouter
 			.catch(next);
 	});
 
-	module.exports = taskThreeRouter
-
+module.exports = taskThreeRouter;

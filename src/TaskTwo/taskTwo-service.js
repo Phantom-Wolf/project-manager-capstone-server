@@ -4,22 +4,25 @@ const TaskTwoService = {
 	// tasks
 
 	getAllTasks(knex, id) {
-		return knex.from("taskTwo").select("*").where("parent_id", id);
+		return knex.from("tasktwo").select("*").where("project_id", id);
 	},
 	getTaskById(knex, id) {
-		return knex.from("taskTwo").select("*").where("id", id).first();
+		return knex.from("tasktwo").select("*").where("id", id).first();
 	},
 	insertTask(knex, newTask) {
 		return knex
 			.insert(newTask)
-			.into("taskTwo")
+			.into("tasktwo")
 			.returning("*")
 			.then((rows) => {
 				return rows[0];
 			});
 	},
 	deleteTask(knex, id) {
-		return knex.from("taskTwo").where({ id }).delete();
+		return knex.from("tasktwo").where({ id }).delete();
+	},
+	updateTask(knex, id, newTaskFields) {
+		return knex.from("tasktwo").where({ id }).update(newTaskFields);
 	},
 
 	// notes

@@ -2,6 +2,7 @@
 
 const express = require("express");
 const xss = require("xss");
+const { requireAuth } = require("../middleware/jwt-auth");
 const UsersService = require("./users-service");
 const path = require("path");
 
@@ -35,26 +36,37 @@ usersRouter.route("/").post(jsonParser, (req, res, next) => {
 		.then((hasUserWithUserEmail) => {
 			if (hasUserWithUserEmail) return res.status(400).json({ error: `Email already taken` });
 
-			return UsersService.hasUserWithUserName(req.app.get("db"),username).then((hasUserWithUsername) => {
-				if (hasUserWithUsername) return res.status(400).json({ error: `Username already taken` });
+			return UsersService.hasUserWithUserName(req.app.get("db"), username).then(
+				(hasUserWithUsername) => {
+					if (hasUserWithUsername) return res.status(400).json({ error: `Username already taken` });
 
-				return UsersService.hashPassword(user_password).then((hashedPassword) => {
-					const newUser = {
-						username,
-						user_email,
-						user_password: hashedPassword,
-					};
+					return UsersService.hashPassword(user_password).then((hashedPassword) => {
+						const newUser = {
+							username,
+							user_email,
+							user_password: hashedPassword,
+						};
 
-					return UsersService.insertUser(req.app.get("db"), newUser).then((user) => {
-						res
-							.status(201)
-							.location(path.posix.join(req.originalUrl, `/${user.id}`))
-							.json(UsersService.serializeUser(user));
+						return UsersService.insertUser(req.app.get("db"), newUser).then((user) => {
+							res
+								.status(201)
+								.location(path.posix.join(req.originalUrl, `/${user.id}`))
+								.json(UsersService.serializeUser(user));
+						});
 					});
-				});
-			});
+				}
+			);
 		})
 		.catch(next);
 });
+
+usersRouter
+	.route("/id")
+	.all(requireAuth)
+	.get((req, res, next) => {
+		UsersService.getUser(req.app.get("db"), req.user.id).then((user) => {
+			res.json(user);
+		});
+	});
 
 module.exports = usersRouter;
