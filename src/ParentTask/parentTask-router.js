@@ -34,13 +34,6 @@ const serializeParentNote = (parentNote) => ({
 
 parentTaskRouter
 	.route("/")
-	// .all(requireAuth)
-	.get((req, res, next) => {
-		const { project_id } = req.body;
-		ParentTaskService.getAllparentTasks(req.app.get("db"), project_id).then((parentTask) => {
-			res.json(parentTask.map(serializeParentTask));
-		});
-	})
 	.post(requireAuth, jsonParser, (req, res, next) => {
 		const { title, project_id, task_level, completion_status = false } = req.body;
 		const newParentTask = { title, project_id, task_level, completion_status };
