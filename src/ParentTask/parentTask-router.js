@@ -123,7 +123,6 @@ parentTaskRouter
 
 parentTaskRouter
 	.route("/notes")
-	// .all(requireAuth)
 	.get((req, res, next) => {
 		const { project_id } = req.body;
 		ParentTaskService.getAllparentTasks(req.app.get("db"), project_id).then((parentTask) => {
@@ -188,11 +187,6 @@ parentTaskRouter.route("/getNotes").post(requireAuth, jsonParser, (req, res, nex
 			});
 
 	ParentTaskService.getAllParentNotes(req.app.get("db"), parent_id).then((parentNotes) => {
-		// if (!parentNotes) {
-		// 	return res.status(404).json({
-		// 		error: { message: `No notes exist yet` },
-		// 	});
-		// }
 		res.json(parentNotes.map(serializeParentNote));
 	});
 });
