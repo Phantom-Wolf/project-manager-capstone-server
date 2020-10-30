@@ -139,6 +139,7 @@ API Documentation details:
 #### Project
 
 get, /api/projects, get all projects by user id
+
   response: [
   {
     id: 1,
@@ -147,7 +148,9 @@ get, /api/projects, get all projects by user id
   }
   ]
 post, /api/projects, insert project
+
 get, /api/projects/:project_id, get project by id
+
 delete, /api/projects/:project_id, delete project by id
 
 #### ParentTask
