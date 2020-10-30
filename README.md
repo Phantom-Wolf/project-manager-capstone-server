@@ -147,6 +147,7 @@ get, /api/projects, get all projects by user id
     user_id: 1
   }
   ]
+  
 post, /api/projects, insert project
 
 get, /api/projects/:project_id, get project by id
