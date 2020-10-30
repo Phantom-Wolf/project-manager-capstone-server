@@ -127,30 +127,30 @@ The app's functionality includes:
 
 API Documentation details:
 
-- Users
+#### Users
 
   - post, /api/users/, new user data
   - get, /api/users/:id, get user
 
-- Auth
+#### Auth
 
   - post, /api/auth/login, user credentials for login
 
-- Project
+#### Project
 
-  - get, /api/projects, get all projects by user id
-    response: [
-    {
-      id: 1,
-      project_name: "example project",
-      user_id: 1
-    }
-    ]
-  - post, /api/projects, insert project
-  - get, /api/projects/:project_id, get project by id
-  - delete, /api/projects/:project_id, delete project by id
+get, /api/projects, get all projects by user id
+  response: [
+  {
+    id: 1,
+    project_name: "example project",
+    user_id: 1
+  }
+  ]
+post, /api/projects, insert project
+get, /api/projects/:project_id, get project by id
+delete, /api/projects/:project_id, delete project by id
 
-- ParentTask
+#### ParentTask
 
   - post, /api/parentTask/getAll, get all tasks by project_id
   - post, /api/parentTask, insert task
@@ -158,13 +158,13 @@ API Documentation details:
   - patch, /api/parentTask/:parentTask_id, update task by id
   - delete, /api/aprentTask/:parentTask_id, delete task by id
 
-- ParentNote
+#### ParentNote
 
   - post, /api/parentNote/getAll, get all notes by parent_id
   - post, /api/parentNote, insert note
   - delete, /api/parentNote/:parentNote_id, delete note by id
 
-- taskOne
+#### taskOne
 
   - post, /api/taskOne/getAll, get all tasks by project_id
   - post, /api/taskOne, insert task
@@ -172,13 +172,13 @@ API Documentation details:
   - patch, /api/taskOne/:taskOne_id, update task by id
   - delete, /api/taskOne/:taskOne_id, delete task by id
 
-- noteOne
+#### noteOne
 
   - post, /api/noteOne/getAll, get all notes by parent_id
   - post, /api/noteOne, insert note
   - delete, /api/noteOne/:noteOne_id, delete note by id
 
-- taskTwo
+#### taskTwo
 
   - post, /api/taskTwo/getAll, get all tasks by project_id
   - post, /api/taskTwo, insert task
@@ -186,13 +186,13 @@ API Documentation details:
   - patch, /api/taskTwo/:taskTwo_id, update task by id
   - delete, /api/taskTwo/:taskTwo_id, delete task by id
 
-- noteTwo
+#### noteTwo
 
   - post, /api/noteTwo/getAll, get all notes by parent_id
   - post, /api/noteTwo, insert note
   - delete, /api/noteTwo/:noteTwo_id, delete note by id
 
-- taskThree
+#### taskThree
 
   - post, /api/taskThree/getAll, get all tasks by project_id
   - post, /api/taskThree, insert task
@@ -200,7 +200,7 @@ API Documentation details:
   - patch, /api/taskThree/:taskThree_id, update task by id
   - delete, /api/taskThree/:taskThree_id, delete task by id
 
-- noteThree
+#### noteThree
   - post, /api/noteThree/getAll, get all notes by parent_id
   - post, /api/noteThree, insert note
   - delete, /api/noteThree/:noteThree_id, delete note by id
