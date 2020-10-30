@@ -1,6 +1,4 @@
-# Capstone Project Title
-
-ProjeX
+# ProjeX
 
 ### Summary
 
