@@ -42,7 +42,6 @@ The app's functionality includes:
       - **sideNav.js** (stateful)
       - **TaskService.js** (stateless)
 
-
 ## Back-end Structure - Business Objects
 
 - user (DATABASE table)
@@ -140,6 +139,13 @@ API Documentation details:
 - Project
 
   - get, /api/projects, get all projects by user id
+    response: [
+    {
+      id: 1,
+      project_name: "example project",
+      user_id: 1
+    }
+    ]
   - post, /api/projects, insert project
   - get, /api/projects/:project_id, get project by id
   - delete, /api/projects/:project_id, delete project by id
