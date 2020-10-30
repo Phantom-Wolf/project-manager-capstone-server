@@ -140,14 +140,14 @@ API Documentation details:
 
 get, /api/projects, get all projects by user id
 
-  response: [
-  {
-    id: 1,
-    project_name: "example project",
-    user_id: 1
-  }
-  ]
-  
+    response: [
+    {
+      id: 1,
+      project_name: "example project",
+      user_id: 1
+    }
+    ]
+
 post, /api/projects, insert project
 
 get, /api/projects/:project_id, get project by id
